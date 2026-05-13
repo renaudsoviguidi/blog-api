@@ -61,7 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (Throwable $e, $request) {
             return response()->json([
                 "success" => false,
-                "message" => "Erreur interne du serveur" //. " " . $e->getMessage()
+                "message" => "Erreur interne du serveur" . " " . $e->getMessage()
             ], 500);
         });
     })->create();

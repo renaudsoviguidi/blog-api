@@ -20,7 +20,7 @@ class UserResource extends JsonResource
             "name" => $this->name,
             "email" => $this->email,
             "roles" => $this->roles->pluck("libelle"),
-            "habilitations" => $this->roles->flatMap(fn($role) => $role->habilitations)->pluck('libelle')
+            "habilitations" => $this->roles->flatMap(fn($role) => $role->habilitations)->pluck('slug')
                 ->unique()
                 ->values(),
             "created_at" => $this->created_at,
