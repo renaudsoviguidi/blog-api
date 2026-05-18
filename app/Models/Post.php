@@ -22,7 +22,8 @@ class Post extends Model
         'cover_image',
         'status',
         'published_at',
-        'ref'
+        'ref',
+        'rejection_reason',
     ];
 
     protected $casts = [

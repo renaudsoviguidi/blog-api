@@ -53,6 +53,10 @@ Route::prefix('v1')->group(function () {
             ->parameters(['posts' => 'post:ref']);
     });
 
+    Route::middleware(['auth:api', 'permission:post.update'])
+    ->get('posts/{post:ref}/edit', [PostController::class, 'edit'])
+    ->name('posts.edit');
+
 
     /// - Authentifié
     Route::middleware(['auth:api'])->group(function () {   

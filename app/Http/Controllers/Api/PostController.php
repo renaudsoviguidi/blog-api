@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RejectPostRequest;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
@@ -60,7 +61,14 @@ class PostController extends Controller
     {
         //
         return $this->success(
-            new PostResource($this->service->show($post))
+            new PostResource($this->service->show($post, trackView: true))
+        );
+    }
+
+    public function edit(Post $post): JsonResponse
+    {
+        return $this->success(
+            new PostResource($this->service->show($post, trackView: false))
         );
     }
 
@@ -100,10 +108,13 @@ class PostController extends Controller
         }
     }
 
-    public function reject(Post $post): JsonResponse
+    public function reject(RejectPostRequest $request, Post $post): JsonResponse
     {
         try {
-            $post = $this->service->reject($post);
+            $post = $this->service->reject(
+                $post,
+                $request->validated()['reason']
+            );
 
             return $this->success(
                 new PostResource($post),

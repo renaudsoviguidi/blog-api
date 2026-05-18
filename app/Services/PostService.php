@@ -21,9 +21,11 @@ class PostService
         return $this->repository->paginate($perPage, $filters);
     }
 
-    public function show(Post $post): Post
+    public function show(Post $post, bool $trackView = false): Post
     {
-        $post->increment('views_count');
+        if ($trackView && $post->status === "published") {
+            $post->increment('views_count');
+        }
         return $this->repository->findWithRelations($post);
     }
 
@@ -86,11 +88,12 @@ class PostService
         return $post->fresh();
     }
 
-    public function reject(Post $post): Post
+    public function reject(Post $post, string $reason): Post
     {
         $post->update([
             'status' => 'draft',
             'published_at' => null,
+            'rejection_reason' => $reason,
         ]);
 
         return $post->fresh();

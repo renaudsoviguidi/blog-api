@@ -21,7 +21,7 @@ class PostResource extends JsonResource
             'slug' => $this->slug,
             'excerpt' => $this->excerpt,
             'content' => $this->when(
-                $request->routeIs('posts.show'),
+                $request->routeIs(["posts.show", "posts.edit"]),
                 $this->content),
             'cover_image'  => $this->cover_image
                 ? asset('storage/' . $this->cover_image)
@@ -32,6 +32,7 @@ class PostResource extends JsonResource
             'author' => new UserResource($this->whenLoaded('author')),
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'rejection_reason' => $this->rejection_reason,
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];
