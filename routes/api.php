@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\auth\AuthController;
@@ -47,15 +48,21 @@ Route::prefix('v1')->group(function () {
         ->parameters(['tags' => 'tag:ref']);
     
     /// ─ Post 
-    Route::middleware('auth:api')->group(function () {
-        Route::apiResource('posts', PostController::class)
-            ->only(['index', 'show'])
-            ->parameters(['posts' => 'post:ref']);
-    });
+    Route::apiResource('posts', PostController::class)
+        ->only(['index', 'show'])
+        ->parameters(['posts' => 'post:ref']);
 
     Route::middleware(['auth:api', 'permission:post.update'])
     ->get('posts/{post:ref}/edit', [PostController::class, 'edit'])
     ->name('posts.edit');
+
+    /// ─ Commentaires
+    Route::get('posts/{post:ref}/comments', [CommentController::class, 'byPost'])
+        ->name('comments.byPost');
+
+    // Poster un commentaire
+    Route::post('posts/{post:ref}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
 
 
     /// - Authentifié
@@ -120,4 +127,35 @@ Route::prefix('v1')->group(function () {
             ->delete('posts/{post:ref}', [PostController::class, 'destroy'])
             ->name('posts.destroy');
         });
+
+        /// - Commentaires
+        Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
+        Route::get('comments/stats', [CommentController::class, 'stats'])->name('comments.stats');
+
+        Route::middleware(['auth:api', 'permission:comment.moderate'])
+            ->patch('comments/{comment:ref}/moderate', [CommentController::class, 'moderate'])
+            ->name('comments.moderate');
+            
+        Route::middleware(['auth:api', 'permission:comment.delete'])
+            ->delete('comments/{comment:ref}', [CommentController::class, 'destroy'])
+            ->name('comments.destroy');
+
+
+});
+
+
+
+Route::prefix('v1')->group(function () {
+
+    
+
+    // ── Admin ──────────────────────────────────────────────
+    Route::middleware('auth:api')->group(function () {
+
+        // Liste + stats
+        
+
+        // Modération
+        
+    });
 });

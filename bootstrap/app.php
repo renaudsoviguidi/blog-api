@@ -59,9 +59,18 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (Throwable $e, $request) {
+
+            if (config('app.debug')) {
+                return response()->json([
+                    "success" => false,
+                    "message" => $e->getMessage(),
+                    "trace" => $e->getTrace(),
+                ], 500);
+            }
+
             return response()->json([
                 "success" => false,
-                "message" => "Erreur interne du serveur" . " " . $e->getMessage()
+                "message" => "Erreur interne du serveur"
             ], 500);
         });
     })->create();

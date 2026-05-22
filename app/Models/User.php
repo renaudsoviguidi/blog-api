@@ -119,7 +119,7 @@ class User extends Authenticatable
     public function hasHabilitation(string $slug): bool
     {
         // Chargement des rôles → habilitations du user
-        return $this->roles()
+        return $this->load('roles.habilitations')->roles()
             ->with('habilitations')
             ->get()
             ->pluck('habilitations')
