@@ -61,7 +61,12 @@ class AuthService
             /// - Envoi du mail à l'utilisateur qui vient de s'inscrire
 
             /// - Construit l'URL d'activation avec le token dans l'URL
-            $activationUrl = env('FRONTEND_URL') . '/verify-email?token=' . $code . '&email=' . urlencode($user->email);
+            $activationUrl = config('app.url')
+                . '/api/auth/verify-email?token='
+                . $user->code_email
+                . '&email='
+                . urlencode($user->email);
+                
             $contenu = [
                 "nom_prenoms" => $user->name,
                 "email" => $user->email,

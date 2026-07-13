@@ -22,27 +22,36 @@ class VerificationController extends Controller
         Log::info('verify-email called', ['email' => $email, 'token' => $token]);
 
         if (!$token || !$email) {
-            return $this->error(
-                "Lien invalide ou incomplet.",
-                null,
-                422
+            return redirect(
+                config('app.frontend_url') . '/auth/login'
+                . '?error=invalid_link'
+                . '&message=' . urlencode('Lien invalide ou incomplet.')
             );
         }
 
         try {
             $this->authService->verifyEmail($email, $token);
 
-            return $this->success(
-                null,
-                "Compte activé avec succès !",
-                200
+            return redirect(
+                config('app.frontend_url') . '/auth/login'
+                . '?verified=1'
+                . '&message=' . urlencode('Votre compte a été activé avec succès ! Vous pouvez maintenant vous connecter.')
             );
 
         } catch (\Exception $e) {
-            return $this->error(
-                $e->getMessage(),
-                null,
-                $e->getCode() ?: 400
+            $errorMap = [
+                409 => 'already_verified',
+                410 => 'link_expired',
+                422 => 'invalid_link',
+                404 => 'invalid_link',
+            ];
+
+            $errorCode = $errorMap[$e->getCode()] ?? 'invalid_link';
+
+            return redirect(
+                config('app.frontend_url') . '/auth/login'
+                . '?error=' . $errorCode
+                . '&message=' . urlencode($e->getMessage())
             );
         }
     }

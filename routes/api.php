@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\NewsletterSubscriberController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\PasswordResetController;
@@ -37,6 +40,10 @@ Route::prefix('v1')->group(function () {
 
     /// - Non authentifié
 
+    Route::get('posts/trending', [PostController::class, 'trending'])->name('posts.trending');
+    Route::get('posts/recommended', [PostController::class, 'recommended'])->name('posts.recommended');
+    Route::get('tags/popular', [TagController::class, 'popular'])->name('tags.popular');
+
     /// - Categories
     Route::apiResource('categories', CategoryController::class)
         ->only(['index', 'show'])
@@ -63,6 +70,18 @@ Route::prefix('v1')->group(function () {
     // Poster un commentaire
     Route::post('posts/{post:ref}/comments', [CommentController::class, 'store'])
         ->name('comments.store');
+    
+    /// - Newsletters
+    Route::post('newsletter/subscribe', [NewsletterSubscriberController::class, 'subscribe'])
+        ->name('newsletter.subscribe');
+
+    Route::get(
+        'newsletter/{token}/unsubscribe',
+        [NewsletterSubscriberController::class, 'unsubscribe']
+    )->name('newsletter.unsubscribe');
+
+    /* Route::get('newsletter/{token}/confirm', [NewsletterSubscriberController::class, 'confirm'])
+        ->name('newsletter.subscribe'); */
 
 
     /// - Authentifié
@@ -126,7 +145,6 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:api', 'permission:post.delete'])
             ->delete('posts/{post:ref}', [PostController::class, 'destroy'])
             ->name('posts.destroy');
-        });
 
         /// - Commentaires
         Route::get('comments', [CommentController::class, 'index'])->name('comments.index');
@@ -140,7 +158,64 @@ Route::prefix('v1')->group(function () {
             ->delete('comments/{comment:ref}', [CommentController::class, 'destroy'])
             ->name('comments.destroy');
 
+        /// - Newsletter Subsrciber
+        Route::middleware(['auth:api', 'permission:newsletter.read'])
+        ->get('newsletter', [NewsletterSubscriberController::class, 'index'])
+        ->name('newsletter.index');
 
+        Route::middleware(['auth:api', 'permission:newsletter.delete'])
+            ->delete('newsletter/{subscriber:ref}', [NewsletterSubscriberController::class, 'destroy'])
+            ->name('newsletter.destroy');
+
+
+        /// - Utilisateurs
+        Route::get('users/stats', [UserController::class, 'stats'])
+            ->name('users.stats');
+
+        Route::middleware('permission:user.read')
+            ->get('users', [UserController::class, 'index'])
+            ->name('users.index');
+
+        Route::middleware('permission:user.read')
+            ->get('users/{user:ref}', [UserController::class, 'show'])
+            ->name('users.show');
+
+        Route::middleware('permission:user.create')
+            ->post('users', [UserController::class, 'store'])
+            ->name('users.store');
+
+        Route::middleware('permission:user.update')
+            ->put('users/{user:ref}', [UserController::class, 'update'])
+            ->name('users.update');
+
+        // Toggle actif/inactif
+        Route::middleware('permission:user.update')
+            ->patch('users/{user:ref}/toggle-active', [UserController::class, 'toggleActive'])
+            ->name('users.toggle-active');
+
+        Route::middleware('permission:user.delete')
+            ->delete('users/{user:ref}', [UserController::class, 'destroy'])
+            ->name('users.destroy');
+
+
+        /// - Tous les rôles sans pagination (pour les selects)
+        Route::get('roles/all', [RoleController::class, 'all'])->name('roles.all');
+
+        /// - Toutes les habilitations disponibles
+        Route::get('roles/habilitations', [RoleController::class, 'habilitations'])->name('roles.habilitations');
+
+        Route::middleware('permission:role.read')
+            ->get('roles', [RoleController::class, 'index'])->name('roles.index');
+
+        Route::middleware('permission:role.create')
+            ->post('roles', [RoleController::class, 'store'])->name('roles.store');
+
+        Route::middleware('permission:role.update')
+            ->put('roles/{role:ref}', [RoleController::class, 'update'])->name('roles.update');
+
+        Route::middleware('permission:role.delete')
+            ->delete('roles/{role:ref}', [RoleController::class, 'destroy'])->name('roles.destroy');
+    });
 });
 
 

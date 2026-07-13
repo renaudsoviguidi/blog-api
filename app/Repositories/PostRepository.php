@@ -12,6 +12,10 @@ class PostRepository
         return Post::query()
             ->with(['author', 'categories', 'tags'])
             ->when(
+                isset($filters['user_id']),
+                fn ($q) => $q->where('user_id', $filters['user_id'])
+            )
+            ->when(
                 isset($filters['status']),
                 fn ($q) => $q->where('status', $filters['status'])
             )

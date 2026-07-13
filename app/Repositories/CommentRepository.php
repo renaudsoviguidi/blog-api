@@ -36,7 +36,13 @@ class CommentRepository
     public function getApprovedByPost(int $postId): Collection
     {
         return Comment::query()
-            ->with(['user', 'replies' => fn ($q) => $q->approved()->with('user')])
+            ->with([
+                'user', 
+                'replies' => fn ($q) => $q
+                ->approved()
+                ->with('user')
+                ->oldest(),
+            ])
             ->where('post_id', $postId)
             ->whereNull('parent_id')
             ->approved()

@@ -19,7 +19,13 @@ class UserResource extends JsonResource
             "ref" => $this->ref,
             "name" => $this->name,
             "email" => $this->email,
-            "roles" => $this->roles->pluck("libelle"),
+            'is_active' => (bool) $this->is_active,
+            'email_verified_at' => $this->email_verified_at?->toIso8601String(),
+            'provider' => $this->provider,
+            "roles" => $this->roles->map(fn ($role) => [
+                'id' => $role->id,
+                'libelle' => $role->libelle,
+            ]),
             "habilitations" => $this->roles->flatMap(fn($role) => $role->habilitations)->pluck('slug')
                 ->unique()
                 ->values(),

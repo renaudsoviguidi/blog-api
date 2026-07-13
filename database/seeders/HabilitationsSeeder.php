@@ -66,6 +66,10 @@ class HabilitationsSeeder extends Seeder
             // DASHBOARD
             ["libelle" => "View Dashboard", "slug" => "dashboard.view", "description" => "Accéder au dashboard"],
             ["libelle" => "Update Settings", "slug" => "settings.update", "description" => "Modifier les paramètres du blog"],
+
+            // NEWSLETTERS
+            ["libelle" => "Lire Newsletter", "slug" => "newsletter.read", "description" => "Voir les abonnés"],
+            ["libelle" => "Delete Newsletter", "slug" => "newsletter.delete", "description" => "Supprimer un abonné"],
         ];
 
         foreach ($data_habilitations as $item) {

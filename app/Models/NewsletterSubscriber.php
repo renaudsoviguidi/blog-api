@@ -8,26 +8,25 @@ use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Post extends Model
+class NewsletterSubscriber extends Model
 {
     //
     use HasFactory, LogsActivity;
 
     protected $fillable = [
-        'user_id',
-        'title',
-        'slug',
-        'content',
-        'excerpt',
-        'cover_image',
-        'status',
-        'published_at',
-        'ref',
-        'rejection_reason',
+        'email',
+        'is_active',
+        'subscribed_at',
+        'unsubscribed_at',
+        'unsubscribe_token',
+        'ip_address',
+        'user_agent',
     ];
 
     protected $casts = [
-        'published_at' => 'datetime',
+        'is_active' => 'boolean',
+        'subscribed_at' => 'datetime',
+        'unsubscribed_at' => 'datetime',
     ];
 
     /// - Cette fonction permet à Laravel de prendre ref comme attribut dans les urls
@@ -35,47 +34,42 @@ class Post extends Model
     {
         return 'ref';
     }
-
-    /* Relations */
-
-    public function author()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class);
-    }
-
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class);
-    }
-
-    public function comments()
-    {
-        return $this->hasMany(Comment::class)->whereNull('parent_id')->where('status', 'approved');
-    }
-
-    public function likes()
-    {
-        return $this->morphMany(Like::class, 'likeable');
-    }
-
-    /* Scopes */
-
-    public function scopePublished($query)
-    {
-        return $query->where('status', 'published')->whereNotNull('published_at');
-    }
-
+    
     protected static function booted(): void
     {
-        static::creating(function (self $model): void {
-            $model->ref  = (string) Str::uuid();
-            $model->slug = Str::slug($model->title);
+        static::creating(function ($subscriber) {
+            $subscriber->ref = (string) Str::uuid();
+            $subscriber->unsubscribe_token = Str::random(64);
+            $subscriber->subscribed_at = now();
         });
+    }
+
+    public function scopeActive($q)
+    {
+        return $q->where('is_active', true);
+    }
+
+    public function scopeInactive($q)
+    {
+        return $q->where('is_active', false);
+    }
+
+    /// - Helpers
+    public function unsubscribe(): void
+    {
+        $this->update([
+            'is_active' => false,
+            'unsubscribed_at' => now(),
+        ]);
+    }
+
+    public function resubscribe(): void
+    {
+        $this->update([
+            'is_active' => true,
+            'subscribed_at' => now(),
+            'unsubscribed_at' => null,
+        ]);
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -88,4 +82,5 @@ class Post extends Model
             ->dontSubmitEmptyLogs() //Empecher l'enregistrement de log vide
             ->useLogName('system'); //Utiliser system comme log name
     }
+
 }

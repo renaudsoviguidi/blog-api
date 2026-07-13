@@ -24,7 +24,7 @@ class StoreCommentRequest extends FormRequest
         return [
             //
             "content" => "required|string|min:3|max:1000",
-            "parent_id" => "nullable|exists:comments,id",
+            'parent_ref'  => 'nullable|exists:comments,ref',
             // Champs invité — obligatoires si non connecté
             "guest_name" => "required_if:user_id,null|nullable|string|max:100",
             "guest_email" => "required_if:user_id,null|nullable|email|max:150",

@@ -101,4 +101,19 @@ class TagController extends Controller
             return $this->error('Une erreur est survenue lors de la suppression.', status: 500);
         }
     }
+
+    /**
+     * Tags populaires — triés par nombre de posts
+     */
+    public function popular(): JsonResponse
+    {
+        $tags = Tag::query()
+            ->withCount(['posts' => fn ($q) => $q->published()])
+            ->having('posts_count', '>', 0)
+            ->orderByDesc('posts_count')
+            ->limit(14)
+            ->get();
+
+        return $this->success(TagResource::collection($tags));
+    }
 }

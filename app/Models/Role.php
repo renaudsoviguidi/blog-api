@@ -24,24 +24,30 @@ class Role extends Model
         });
     }
 
-    public function get_created_by()
+    public function getRouteKeyName(): string
+    {
+        return 'ref';
+    }
+
+    public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function get_updated_by()
+    public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function get_role_habilitation()
+    public function role_habilitation()
     {
         return $this->hasMany(HabilitationRole::class, 'role_id');
     }
 
     public function habilitations()
     {
-        return $this->belongsToMany(Habilitation::class, 'habilitation_role')->using(HabilitationRole::class);
+        return $this->belongsToMany(Habilitation::class, 'habilitation_role', 'role_id', 'habilitation_id')
+        ->using(HabilitationRole::class);
     }
 
     public function users()

@@ -16,11 +16,6 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, LogsActivity;
 
-    public $table = "users";
-    protected $primaryKey = "id";
-    public $incrementing = true;
-    protected $keyType = 'int';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -41,6 +36,12 @@ class User extends Authenticatable
         "created_at",
         "updated_at"
     ];
+
+    /// - Cette fonction permet à Laravel de prendre ref comme attribut dans les urls
+    public function getRouteKeyName()
+    {
+        return 'ref';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -91,9 +92,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'role_user', 'user_id','role_id');
     }
 
-    public function hasRole($role)
+    public function hasRole(string $libelle): bool
     {
-        return $this->roles()->where('libelle',$role)->exists();
+        return $this->roles->contains('libelle', $libelle);
     }
 
     public function habilitations()

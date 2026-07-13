@@ -90,10 +90,15 @@ class CommentService
         return DB::transaction(function () use ($post, $data) {
             $user = Auth::user();
 
+            $parentId = null;
+            if (!empty($data['parent_ref'])) {
+                $parentId = Comment::where('ref', $data['parent_ref'])->value('id');
+            }
+
             return $this->repository->create([
                 'post_id' => $post->id,
                 'user_id' => $user?->id,
-                'parent_id' => $data['parent_id'] ?? null,
+                'parent_id' => $parentId,
                 'content' => $data['content'],
                 'guest_name' => $user ? null : ($data['guest_name']  ?? null),
                 'guest_email' => $user ? null : ($data['guest_email'] ?? null),

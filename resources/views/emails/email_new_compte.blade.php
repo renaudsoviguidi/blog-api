@@ -10,16 +10,16 @@
 
     <div class="cta-wrap">
         <a href="{{ $activationUrl }}" class="cta-btn">
-            ✅ &nbsp; Activer mon compte
+            &nbsp; Activer mon compte
         </a>
-        <p class="cta-expiry">⏳ Ce lien expire dans 60 minutes</p>
+        <p class="cta-expiry">Ce lien expire dans 60 minutes</p>
     </div>
 
     <hr class="divider" />
 
     {{-- Sécurité --}}
     <div class="security-box">
-        <div class="security-title">🔒 Informations de sécurité</div>
+        <div class="security-title">Informations de sécurité</div>
         <ul>
             <li>Ne partagez jamais ce lien avec quelqu'un d'autre.</li>
             <li>MonBlog ne vous demandera jamais votre mot de passe par email.</li>

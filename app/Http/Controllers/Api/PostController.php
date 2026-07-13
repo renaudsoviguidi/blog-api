@@ -28,6 +28,11 @@ class PostController extends Controller
         //
         $filters = $request->only(['status', 'search', 'category_ref', 'tag_ref']);
 
+        $user = auth('api')->user();
+        if (!$user->hasRole('ADMIN')) {
+            $filters['user_id'] = $user->id;
+        }
+
         return PostResource::collection(
             $this->service->paginate(10, $filters)
         );
@@ -78,6 +83,7 @@ class PostController extends Controller
     public function update(UpdatePostRequest $request, Post $post): JsonResponse
     {
         //
+        $this->authorize('update', $post);
         try {
             $post = $this->service->update($post, $request->validated());
 
@@ -142,5 +148,35 @@ class PostController extends Controller
             report($e);
             return $this->error('Une erreur est survenue lors de la suppression.', status: 500);
         }
+    }
+
+    /**
+     * Articles les plus vus (tendances)
+     */
+    public function trending(): JsonResponse
+    {
+        $posts = Post::query()
+            ->with(['author', 'categories'])
+            ->published()
+            ->orderByDesc('views_count')
+            ->limit(5)
+            ->get();
+
+        return $this->success(PostResource::collection($posts));
+    }
+
+    /**
+     * Articles recommandés — les plus récents par catégorie
+     */
+    public function recommended(): JsonResponse
+    {
+        $posts = Post::query()
+            ->with(['author', 'categories'])
+            ->published()
+            ->latest('published_at')
+            ->limit(4)
+            ->get();
+
+        return $this->success(PostResource::collection($posts));
     }
 }
